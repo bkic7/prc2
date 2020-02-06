@@ -31,47 +31,4 @@ int main(int argc, char **argv) {
 	c_addr.sin_family = AF_INET;
 	c_addr.sin_port = htons(port_number);
 	if ((inet_aton(argv[1], &c_addr.sin_addr)) == 0) {
-		showError("Blad z addresem serwera \n");
-	}
 
-	if (connect(cliFD, (struct sockaddr*) &c_addr, sizeof(c_addr)) < 0) {
-		showError("Blad podczas polaczenia z serwerem.\n");
-	}
-
-	printf("Polaczono.\n");
-	printf("Wprowadzanie danych.\n");
-
-	while (1) {
-		msgFromServer = receiveMsgFromServer(cliFD);
-		if (msgFromServer == NULL)
-			break;
-		if (strncmp(msgFromServer, "unauth", 6) == 0) {
-			printf("Bledne logowanie, sprobuj ponownie.\n");
-			shutdown(cliFD, SHUT_WR);
-			break;
-		}
-		wyswietl(msgFromServer);
-		wyswietl("\n");
-		free(msgFromServer);
-
-		memset(msgToServer, 0, sizeof(msgToServer));
-		scanf("%s", msgToServer);
-		sendMsgToServer(cliFD, msgToServer);
-		if (strncmp(msgToServer, "exit", 4) == 0) {
-			shutdown(cliFD, SHUT_WR);
-			break;
-		}
-	}
-
-	while (1) {
-		msgFromServer = receiveMsgFromServer(cliFD);
-		if (msgFromServer == NULL)
-			break;
-		wyswietl(msgFromServer);
-		wyswietl("\n");
-		free(msgFromServer);
-	}
-	shutdown(cliFD, SHUT_RD);
-	printf("Polaczenie zamkniete pomyslnie.\n");
-	return 0;
-}
